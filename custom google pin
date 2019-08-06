@@ -1,0 +1,41 @@
+for (int i = 0; i < data.getData().size(); i++) {
+
+            View mCustomMarkerView = getActivity().getLayoutInflater().inflate(R.layout.custom_marker_user_side, null);
+
+            LinearLayout layout = mCustomMarkerView.findViewById(R.id.custom_marker_view);
+            TextView txtPrice = mCustomMarkerView.findViewById(R.id.txtPrice);
+
+            float epsilon = 0.004f; // 4 tenths of a cent
+
+            if (Math.abs(Math.round(data.getData().get(i).getDayPassRate()) - data.getData().get(i).getDayPassRate()) < epsilon) {
+                txtPrice.setText("$" + String.format("%10.0f", data.getData().get(i).getDayPassRate()).trim());
+            } else {
+                txtPrice.setText("$" + String.format("%10.2f", data.getData().get(i).getDayPassRate()).trim());
+            }
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            LatLng latLng = new LatLng(data.getData().get(i).getLatitude(), data.getData().get(i).getLongitude());
+            markerOptions.position(latLng);
+
+            layout.setDrawingCacheEnabled(true);
+
+            layout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
+            layout.layout(0, 0, layout.getMeasuredWidth(), layout.getMeasuredHeight());
+
+            layout.buildDrawingCache(true);
+            Bitmap b = Bitmap.createBitmap(layout.getDrawingCache());
+            layout.setDrawingCacheEnabled(false); // clear drawing cache
+
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(b));
+            CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(getActivity());
+            map.setInfoWindowAdapter(customInfoWindow);
+
+            Marker m = map.addMarker(markerOptions);
+            m.setTag(data.getData().get(i));
+
+            map.setOnMarkerClickListener(this);
+            map.setOnInfoWindowClickListener(this);
+
+        }
